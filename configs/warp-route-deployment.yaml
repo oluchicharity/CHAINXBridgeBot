@@ -1,0 +1,33 @@
+basesepolia:
+  interchainSecurityModule:
+    modules:
+      - relayer: "0x9e2d3c52471A23500bA1aB086fe2812f1d444EA2"
+        type: trustedRelayerIsm
+      - domains: {}
+        owner: "0x9e2d3c52471A23500bA1aB086fe2812f1d444EA2"
+        type: defaultFallbackRoutingIsm
+    threshold: 1
+    type: staticAggregationIsm
+  isNft: false
+  mailbox: "0x6966b0E55883d49BFB24539356a2f8A673E02039"
+  owner: "0x9e2d3c52471A23500bA1aB086fe2812f1d444EA2"
+  proxyAdmin:
+    owner: "0x9e2d3c52471A23500bA1aB086fe2812f1d444EA2"
+  type: native
+bsctestnet:
+  interchainSecurityModule:
+    modules:
+      - relayer: "0x9e2d3c52471A23500bA1aB086fe2812f1d444EA2"
+        type: trustedRelayerIsm
+      - domains: {}
+        owner: "0x9e2d3c52471A23500bA1aB086fe2812f1d444EA2"
+        type: defaultFallbackRoutingIsm
+    threshold: 1
+    type: staticAggregationIsm
+  isNft: false
+  mailbox: "0xF9F6F5646F478d5ab4e20B0F910C92F1CCC9Cc6D"
+  owner: "0x9e2d3c52471A23500bA1aB086fe2812f1d444EA2"
+  proxyAdmin:
+    owner: "0x9e2d3c52471A23500bA1aB086fe2812f1d444EA2"
+  type: native
+

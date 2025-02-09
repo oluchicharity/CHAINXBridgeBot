@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LayerZero Cross-Chain Bot</title>
+</head>
+<body>
+  <button id="connectButton">Connect Wallet</button>
+  <button id="sendMessageButton">Send Message</button>
+
+  <script type="module">
+    import { connectWallet, sendMessage } from './bot.js';
+
+    document.getElementById('connectButton').addEventListener('click', connectWallet);
+
+    document.getElementById('sendMessageButton').addEventListener('click', () => {
+      const destinationChainId = 5; // Example: Sepolia testnet
+      const message = "Hello from LayerZero bot!";
+      sendMessage(destinationChainId, message);
+    });
+  </script>
+</body>
+</html>
