@@ -1,4 +1,3 @@
-# CHAINXBridgeBot
 CHAINXBridgeBot - Telegram Wallet Management Bot
 CHAINXBridgeBot is a Telegram bot designed to allow users to interact with their cryptocurrency wallets across multiple blockchain networks, such as Sepolia, BSC, and Flow EVM. The bot enables users to securely export their private keys and wallet details directly through Telegram, providing a seamless experience for wallet management.
 
@@ -30,14 +29,14 @@ Telegraf.js: A framework for building Telegram bots with Node.js.
 Supabase: For database and secure wallet storage.
 Blockchain RPCs: For interacting with blockchains such as Base-sepolia-testnet, BSC-testnet, and Flow-evm-testnet.
 Custom Encryption Logic: For securely handling private keys and other sensitive data.
+LayerZero Provider: For bridging between different blockchain networks.
 Technologies Used
 Node.js - JavaScript runtime for building the bot.
 Telegraf.js - Telegram bot API framework for Node.js.
 Supabase - For database and user management.
 Blockchain RPCs - Connects with multiple blockchain networks.
 Encryption - Securely stores sensitive user data like private keys.
-LayerZero Provider
-
+LayerZero Provider - To interact with multiple blockchains.
 Setting Up Locally
 Prerequisites
 Node.js installed on your machine. Download from Node.js.
@@ -88,7 +87,7 @@ bash
 Copy
 Edit
 node bot.js
-Test the Bot: Open Telegram and search for your bot using its @ChainXBridgeBot. Start interacting with the bot to test its functionality.
+Test the Bot: Open Telegram and search for your bot using its username @ChainXBridgeBot. Start interacting with the bot to test its functionality.
 
 Environment Variables
 Make sure to set the following environment variables in your .env file:
@@ -119,7 +118,7 @@ Once the bot is set up and running, you can start interacting with it directly o
 Example Commands:
 /start - Begin interacting with the bot.
 /export - Export wallet details.
-/bridge- Bridging Tokens
+/bridge - Bridge tokens between networks.
 Contributing
 We welcome contributions to improve CHAINXBridgeBot! If you find any bugs or want to add new features, feel free to:
 
