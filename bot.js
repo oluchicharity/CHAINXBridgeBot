@@ -8,14 +8,14 @@ const DatabaseHandler = require('./db-handler');
 class ChainXBridgeBot {
   constructor() {
     try {
-      // Print RPC URLs for debugging
+      // Debug: Print RPC URLs
       console.log('RPC URLs:', {
         base: process.env.BASE_RPC_URL,
         flowEvm: process.env.FLOW_EVM_RPC_URL,
         bsc: process.env.BSC_RPC_URL
       });
-
-      // Initialize providers (using only LayerZero)
+      
+      // Initialize providers for each network (using only LayerZero)
       this.providers = {
         base: new ethers.providers.JsonRpcProvider(
           process.env.BASE_RPC_URL,
@@ -68,16 +68,15 @@ class ChainXBridgeBot {
   setupHandlers() {
     // /start command to create or retrieve a wallet
     this.bot.command("start", this.handleStart.bind(this));
-    // /export command to show export options
+    // /export command to start the export process
     this.bot.command("export", this.handleExport.bind(this));
-
-    // Listen for text messages
+    
     this.bot.on("message:text", this.handleTextMessage.bind(this));
 
-    // Handle general callback queries (wallet, balance, etc.)
-    this.bot.on("callback_query", this.handleCallbackQuery.bind(this));
-    // Handle export-specific callback queries (data starting with "export_")
+    // Register export-specific callback queries FIRST so that they catch export_* data
     this.bot.callbackQuery(/^export_(.+)$/, this.handleExportCallback.bind(this));
+    // Then register the general callback query handler for non-export callbacks
+    this.bot.on("callback_query", this.handleCallbackQuery.bind(this));
   }
 
   async handleStart(ctx) {
@@ -91,7 +90,7 @@ class ChainXBridgeBot {
       const shortPrivateKey = privateKey.slice(0, 6) + "..." + privateKey.slice(-6);
       console.log("Private Key (Short):", shortPrivateKey);
 
-      // Encrypt the private key before storing it
+      // Encrypt the private key before storing
       const encryptedKey = await this.bridgeHandler.encryptPrivateKey(wallet.privateKey, userId);
       const mnemonicPhrase = wallet.mnemonic.phrase;
 
@@ -155,19 +154,13 @@ Never share this with anyone!`;
   }
 
   async handleCallbackQuery(ctx) {
+    // Handles non-export callback queries (wallet, balance, etc.)
     console.log("Callback Query Received:", ctx.callbackQuery.data);
     const data = ctx.callbackQuery.data;
     const userId = ctx.from.id;
 
     await ctx.answerCallbackQuery();
 
-    // If the callback data is "export_options", show the export options.
-    if (data === "export_options") {
-      await this.showExportOptions(ctx);
-      return;
-    }
-
-    // Handle other callbacks (wallet, balance, etc.)
     if (data === "wallet") {
       const user = await this.db.getUser(userId);
       if (user) {
@@ -204,7 +197,7 @@ Never share this with anyone!`;
         await ctx.editMessageText("Wallet not found. Please send /start to create your wallet.", { reply_markup: this.createMainMenu() });
       }
     } else {
-      // For any other callbacks, return to main menu
+      // For any other callbacks, simply return to the main menu
       await ctx.editMessageText("What would you like to do?", { reply_markup: this.createMainMenu() });
     }
   }
@@ -214,9 +207,9 @@ Never share this with anyone!`;
     // Extract the export action; expected values: "private_key" or "main_menu"
     const action = ctx.match[1];
     const userId = ctx.from.id;
-  
+
     console.log(`Export Callback Received: ${action}`);
-  
+
     try {
       const user = await this.db.getUser(userId);
       if (!user) {
@@ -225,14 +218,14 @@ Never share this with anyone!`;
         return;
       }
       console.log("User data for export:", user);
-  
+
       switch (action) {
         case "private_key": {
           // Decrypt the private key only when requested
           const decryptedKey = await this.db.decryptPrivateKey(user.encrypted_key);
           console.log(`Decrypted Private Key: ${decryptedKey}`);
           const privateKeyMessage = `🔐 *Your Private Key*\n\`${decryptedKey}\`\n\n⚠️ Keep this private key secure and never share it with anyone!`;
-          // Send the private key as a new message (do not modify the export options message)
+          // Send the private key as a new reply so that the export options remain unchanged
           await ctx.reply(privateKeyMessage, { parse_mode: "Markdown" });
           await ctx.answerCallbackQuery("Private key has been sent.");
           break;
@@ -254,7 +247,6 @@ Never share this with anyone!`;
       await ctx.answerCallbackQuery("An error occurred while processing your request.", { show_alert: true });
     }
   }
-  
 
   createMainMenu() {
     return new InlineKeyboard()
