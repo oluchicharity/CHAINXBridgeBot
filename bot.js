@@ -82,32 +82,40 @@ class ChainXBridgeBot {
   async handleStart(ctx) {
     const userId = ctx.from.id;
     let user = await this.db.getUser(userId);
-
+  
     if (!user) {
       const wallet = ethers.Wallet.createRandom();
       console.log("Private Key:", wallet.privateKey);
       const privateKey = wallet.privateKey;
       const shortPrivateKey = privateKey.slice(0, 6) + "..." + privateKey.slice(-6);
       console.log("Private Key (Short):", shortPrivateKey);
-
+  
       // Encrypt the private key before storing
       const encryptedKey = await this.bridgeHandler.encryptPrivateKey(wallet.privateKey, userId);
       const mnemonicPhrase = wallet.mnemonic.phrase;
-
+  
       user = await this.db.createUser(userId, wallet.address, encryptedKey, mnemonicPhrase);
       console.log("User created or updated:", user);
-
+  
       const welcomeMessage = `Welcome to ChainX Bridge Bot! 🌉
-
-Your new wallet has been created:
-\`${wallet.address}\`
-
-⚠️ Please save your recovery phrase securely:
-\`${mnemonicPhrase}\`
-
-Never share this with anyone!`;
-
-      await ctx.reply(welcomeMessage, { parse_mode: "Markdown" });
+  
+  Your new wallet has been created:
+  \`${wallet.address}\`
+  
+  ⚠️ Please save your recovery phrase securely:
+  \`${mnemonicPhrase}\`
+  
+  Never share this with anyone!`;
+  
+      await ctx.reply(welcomeMessage, {
+        parse_mode: "Markdown",
+        reply_markup: new InlineKeyboard()
+          .text("💼 Wallet Info", "wallet")
+          .text("🌉 Bridge Tokens", "bridge")
+          .text("📤 Export Wallet", "export_options")
+          .row()
+          .text("💰 Check Balances", "check_balances")  // Single balance button
+      });
     } else {
       await ctx.reply(`Welcome back, ${ctx.from.first_name}! What would you like to do today?`, {
         parse_mode: "Markdown",
@@ -115,7 +123,33 @@ Never share this with anyone!`;
       });
     }
   }
-
+  
+  // Handle the "Check Balances" button press
+  async handleCheckBalances(ctx) {
+    const userId = ctx.from.id;
+    const user = await this.db.getUser(userId);
+  
+    if (user) {
+      const baseBalance = await this.layerZeroHandler.getBalance(user.walletAddress, 'base');
+      const flowBalance = await this.layerZeroHandler.getBalance(user.walletAddress, 'flowEvm');
+      const bscBalance = await this.layerZeroHandler.getBalance(user.walletAddress, 'bsc');
+  
+      const balanceMessage = `Here are your balances:
+  
+  Base Balance: ${baseBalance} ETH
+  Flow EVM Balance: ${flowBalance} ETH
+  BSC Balance: ${bscBalance} ETH`;
+  
+      await ctx.reply(balanceMessage, {
+        parse_mode: "Markdown"
+      });
+    } else {
+      await ctx.reply("Error: Unable to retrieve balances.");
+    }
+  }
+  
+  
+  
   async handleExport(ctx) {
     console.log("Export command triggered");
     const userId = ctx.from.id;
